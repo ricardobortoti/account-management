@@ -92,4 +92,8 @@ public class AccountService {
 
         return accountTransfer;
     }
+
+    public List<AccountTransfer> findTransfersByAccountNumber(Integer accountNumber) {
+        return accountTransferRepository.findAll();
+    }
 }

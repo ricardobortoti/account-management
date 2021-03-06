@@ -31,9 +31,14 @@ public class AccountController {
         return accountService.findAll();
     }
 
-    @PostMapping("/{accountNumber}/transactions")
+    @PostMapping("/{accountNumber}/transfers")
     public AccountTransfer transfer(@PathVariable Integer accountNumber, @RequestBody AccountTransfer accountTransfer){
         accountTransfer.setFromAccount(accountNumber);
         return accountService.transfer(accountTransfer);
+    }
+
+    @GetMapping("/{accountNumber}/transfers")
+    public List<AccountTransfer> getTransfers(@PathVariable Integer accountNumber){
+        return accountService.findTransfersByAccountNumber(accountNumber);
     }
 }
