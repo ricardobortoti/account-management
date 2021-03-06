@@ -8,6 +8,7 @@ import com.bortoti.accountmanagement.exception.SameAccountException;
 import com.bortoti.accountmanagement.exception.TransactionLimitExceededException;
 import com.bortoti.accountmanagement.repository.AccountRepository;
 import com.bortoti.accountmanagement.repository.AccountTransferRepository;
+import com.bortoti.accountmanagement.view.AccountTransferView;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,10 +37,6 @@ public class AccountService {
         return save(account);
     }
 
-    public Account update(Account account){
-        return save(account);
-    }
-
     public List<Account> findAll() {
         return accountRepository.findAll();
     }
@@ -47,8 +44,6 @@ public class AccountService {
     public Account findByAccountNumber(Integer accountNumber) {
         return  accountRepository.findByAccountNumber(accountNumber).orElseThrow(AccountNotFoundException.notFound(accountNumber));
     }
-
-
 
     void witdraw(Account account, Double amount) {
         if (account.getAccountBalance() < amount) {
@@ -88,12 +83,12 @@ public class AccountService {
             accountTransfer.setSuccess(false);
         }
 
-        accountTransferRepository.save(accountTransfer);
 
-        return accountTransfer;
+
+        return accountTransferRepository.save(accountTransfer);
     }
 
-    public List<AccountTransfer> findTransfersByAccountNumber(Integer accountNumber) {
-        return accountTransferRepository.findAll();
+    public List<AccountTransferView> findTransfersByAccountNumber(Integer fromAccount, Integer toAccount) {
+        return accountTransferRepository.findByFromAccountOrToAccountOrderByCreatedAtDesc(fromAccount, toAccount);
     }
 }
