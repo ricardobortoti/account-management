@@ -48,7 +48,6 @@ public class AccountController {
     @GetMapping("/{accountNumber}/transfers")
     @ApiOperation(value = "Gets all transfers from account")
     public List<AccountTransferView> getTransfers(@PathVariable Integer accountNumber){
-        List<AccountTransferView> res = accountService.findTransfersByAccountNumber(accountNumber, accountNumber);
         return accountService.findTransfersByAccountNumber(accountNumber, accountNumber);
     }
 }

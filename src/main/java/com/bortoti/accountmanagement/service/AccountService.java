@@ -19,9 +19,9 @@ import java.util.UUID;
 @Service
 public class AccountService {
 
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
 
-    private AccountTransferRepository accountTransferRepository;
+    private final AccountTransferRepository accountTransferRepository;
 
     public AccountService(AccountRepository accountRepository, AccountTransferRepository accountTransferRepository) {
         this.accountRepository = accountRepository;
