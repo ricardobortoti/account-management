@@ -18,9 +18,9 @@ import java.util.UUID;
 public class AccountTransfer {
     @Id
     private UUID id;
-    private Integer from;
-    private Integer to;
+    private Integer fromAccount;
+    private Integer toAccount;
     private Double amount;
-    private LocalDateTime date;
+    private LocalDateTime createdAt;
     private Boolean success;
 }

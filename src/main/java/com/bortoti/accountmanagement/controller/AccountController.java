@@ -33,7 +33,7 @@ public class AccountController {
 
     @PostMapping("/{accountNumber}/transactions")
     public AccountTransfer transfer(@PathVariable Integer accountNumber, @RequestBody AccountTransfer accountTransfer){
-        accountTransfer.setFrom(accountNumber);
+        accountTransfer.setFromAccount(accountNumber);
         return accountService.transfer(accountTransfer);
     }
 }
