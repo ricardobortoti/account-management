@@ -45,7 +45,7 @@ public class AccountService {
         return  accountRepository.findByAccountNumber(accountNumber).orElseThrow(AccountNotFoundException.notFound(accountNumber));
     }
 
-    void witdraw(Account account, Double amount) {
+    void withdraw(Account account, Double amount) {
         if (account.getAccountBalance() < amount) {
             throw new NotEnoughBalanceException();
         }
@@ -67,7 +67,6 @@ public class AccountService {
             throw new SameAccountException();
         }
 
-
         Account from = findByAccountNumber(accountTransfer.getFromAccount());
         Account to = findByAccountNumber(accountTransfer.getToAccount());
         accountTransfer.setId(UUID.randomUUID());
@@ -75,7 +74,7 @@ public class AccountService {
         accountTransfer.setSuccess(true);
 
         try {
-            witdraw(from, accountTransfer.getAmount());
+            withdraw(from, accountTransfer.getAmount());
             deposit(to, accountTransfer.getAmount());
             save(from);
             save(to);
