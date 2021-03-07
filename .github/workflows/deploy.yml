@@ -80,5 +80,5 @@ jobs:
       with:
         task-definition: ${{ steps.task-def.outputs.task-definition }}
         service: account-management
-        cluster: default
+        cluster: account-management-cluster
         wait-for-service-stability: true
