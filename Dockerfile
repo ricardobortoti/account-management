@@ -11,6 +11,6 @@ FROM openjdk:11-jre-slim
 COPY --from=builder /home/src/build/libs/*.jar /app.jar
 
 # Ports exposing
-EXPOSE 9080
+EXPOSE 80
 
 ENTRYPOINT ["java","-jar","/app.jar"]
