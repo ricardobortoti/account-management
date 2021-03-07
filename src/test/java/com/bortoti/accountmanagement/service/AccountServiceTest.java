@@ -82,10 +82,10 @@ class AccountServiceTest {
                 .accountBalance(100.00)
                 .build();
 
-        UUID transferid = UUID.randomUUID();
+        UUID transferId = UUID.randomUUID();
         LocalDateTime createdAt = LocalDateTime.now();
         AccountTransfer transfer = AccountTransfer.builder()
-                .id(transferid)
+                .id(transferId)
                 .fromAccount(fromAccountNumber)
                 .toAccount(toAccountNumber)
                 .amount(50.0)
@@ -93,7 +93,7 @@ class AccountServiceTest {
                 .build();
 
         AccountTransfer expectedTransferResult = AccountTransfer.builder()
-                .id(transferid)
+                .id(transferId)
                 .fromAccount(fromAccountNumber)
                 .toAccount(toAccountNumber)
                 .amount(50.0)
@@ -110,7 +110,7 @@ class AccountServiceTest {
 
         //then
         try (MockedStatic<UUID> mockedUUID = Mockito.mockStatic(UUID.class)) {
-            mockedUUID.when(UUID::randomUUID).thenReturn(transferid);
+            mockedUUID.when(UUID::randomUUID).thenReturn(transferId);
             try (MockedStatic<LocalDateTime> mockedLocalDateTime = Mockito.mockStatic(LocalDateTime.class)) {
                 mockedLocalDateTime.when(LocalDateTime::now).thenReturn(createdAt);
                 accountService.transfer(transfer);
