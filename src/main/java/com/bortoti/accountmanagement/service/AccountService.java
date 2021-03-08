@@ -18,6 +18,8 @@ import java.util.UUID;
 @Service
 public class AccountService {
 
+    private static final int transactionLimitValue = 1000;
+
     private final AccountRepository accountRepository;
 
     private final AccountTransferRepository accountTransferRepository;
@@ -53,7 +55,7 @@ public class AccountService {
             throw new NotEnoughBalanceException();
         }
 
-        if (amount.compareTo(BigDecimal.valueOf(1000)) > 0) {
+        if (amount.compareTo(BigDecimal.valueOf(transactionLimitValue)) > 0) {
             throw new TransactionLimitExceededException();
         }
 

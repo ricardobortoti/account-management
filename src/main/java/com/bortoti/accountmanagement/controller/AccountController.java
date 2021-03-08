@@ -8,6 +8,8 @@ import com.bortoti.accountmanagement.service.AccountService;
 import com.bortoti.accountmanagement.view.AccountTransferView;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +32,9 @@ public class AccountController extends AbstractRestController<Integer> {
 
     @PostMapping
     @ApiOperation(value = "Create a Client Account")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "AccountCreated", response = Account.class),
+            @ApiResponse(code = 400, message = "Invalid Account Request")})
     public ResponseEntity<Account> create(@RequestBody @Valid AccountRequest accountRequest) {
         var account = modelMapper.map(accountRequest, Account.class);
         var createdAccount = accountService.create(account);
@@ -38,6 +43,9 @@ public class AccountController extends AbstractRestController<Integer> {
 
     @GetMapping("/{accountNumber}")
     @ApiOperation(value = "Gets an Account by Id")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Ok", response = Account.class),
+            @ApiResponse(code = 404, message = "Account Not Found")})
     public ResponseEntity<Account> getByAccountId(@PathVariable Integer accountNumber) {
         var recoveredAccount = accountService.findByAccountNumber(accountNumber);
         return ResponseEntity.ok(recoveredAccount);
@@ -45,6 +53,8 @@ public class AccountController extends AbstractRestController<Integer> {
 
     @GetMapping
     @ApiOperation(value = "Gets all Accounts with respective clients")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Ok", response = Account.class, responseContainer = "List")})
     public ResponseEntity<List<Account>> getAll() {
         var allAccounts = accountService.findAll();
         return ResponseEntity.ok(allAccounts);
@@ -52,6 +62,8 @@ public class AccountController extends AbstractRestController<Integer> {
 
     @PostMapping("/{accountNumber}/transfers")
     @ApiOperation(value = "Perform a Transfer to the desired account")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Ok", response = AccountTransfer.class)})
     public ResponseEntity<AccountTransfer> transfer(@PathVariable Integer accountNumber, @Valid @RequestBody AccountTransferRequest accountTransferRequest){
         var accountTransfer = modelMapper.map(accountTransferRequest, AccountTransfer.class);
         accountTransfer.setFromAccount(accountNumber);
