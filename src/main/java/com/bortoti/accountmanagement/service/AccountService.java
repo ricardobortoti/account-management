@@ -10,6 +10,7 @@ import com.bortoti.accountmanagement.view.AccountTransferView;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -47,20 +48,20 @@ public class AccountService {
         return  accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new AccountNotFoundException("Account Not Found"));
     }
 
-    void withdraw(Account account, Double amount) {
-        if (account.getAccountBalance() < amount) {
+    void withdraw(Account account, BigDecimal amount) {
+        if (account.getAccountBalance().compareTo(amount) < 0) {
             throw new NotEnoughBalanceException();
         }
 
-        if (amount > 1000) {
+        if (amount.compareTo(BigDecimal.valueOf(1000)) > 0) {
             throw new TransactionLimitExceededException();
         }
 
-        account.setAccountBalance(account.getAccountBalance() - amount);
+        account.setAccountBalance(account.getAccountBalance().subtract(amount));
     }
 
-    void deposit(Account account, Double amount) {
-        account.setAccountBalance(account.getAccountBalance() + amount);
+    void deposit(Account account, BigDecimal amount) {
+        account.setAccountBalance(account.getAccountBalance().add(amount));
     }
 
     @Transactional

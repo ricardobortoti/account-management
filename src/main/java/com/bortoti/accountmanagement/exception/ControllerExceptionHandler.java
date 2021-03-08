@@ -36,7 +36,7 @@ public class ControllerExceptionHandler {
             attributeMessages.add(new AttributeMessage(field, violation.getMessage()));
         }
 
-        ExceptionResponse err = new ExceptionResponse(HttpStatus.BAD_REQUEST, null, attributeMessages);
+        ExceptionResponse err = new ExceptionResponse(HttpStatus.BAD_REQUEST, e.getMessage(), attributeMessages);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
     }
 
@@ -62,7 +62,7 @@ public class ControllerExceptionHandler {
         for (FieldError x : e.getBindingResult().getFieldErrors()) {
             err.getAttributes().add(new AttributeMessage(x.getField(), x.getDefaultMessage()));
         }
-
+        err.setDescription("Validation Errors");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
     }
 

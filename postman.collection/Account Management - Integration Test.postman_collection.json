@@ -1,0 +1,395 @@
+{
+	"info": {
+		"_postman_id": "8f8fe790-1fe4-45a6-86d4-7fce87e015e9",
+		"name": "Account Management - Integration Test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Account (john.doe)",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.globals.set(\"johnDoeAccountNumber\", Math.floor(Math.random() * 1000000));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"tests[\"Body is not empty\"] = (responseBody!==null || responseBody.length!==0);\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Check Reponse Data\", function () {\r",
+							"    pm.expect(jsonData.name).equal(\"john.doe\");\r",
+							"    pm.expect(jsonData.accountNumber).equal(pm.globals.get(\"johnDoeAccountNumber\"));\r",
+							"    pm.expect(jsonData.accountBalance).equal(1000000.0);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"john.doe\",\r\n    \"accountNumber\": {{johnDoeAccountNumber}},\r\n    \"accountBalance\": 1000000\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:80/v1/accounts",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "80",
+					"path": [
+						"v1",
+						"accounts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Account (jane.doe)",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.globals.set(\"janeDoeAccountNumber\", pm.globals.get(\"johnDoeAccountNumber\")+1);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"tests[\"Body is not empty\"] = (responseBody!==null || responseBody.length!==0);\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Check Reponse Data\", function () {\r",
+							"    pm.expect(jsonData.name).equal(\"jane.doe\");\r",
+							"    pm.expect(jsonData.accountNumber).equal(pm.globals.get(\"janeDoeAccountNumber\"));\r",
+							"    pm.expect(jsonData.accountBalance).equal(1000000.0);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"jane.doe\",\r\n    \"accountNumber\": {{janeDoeAccountNumber}},\r\n    \"accountBalance\": 1000000\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:80/v1/accounts",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "80",
+					"path": [
+						"v1",
+						"accounts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Accounts (Look For John and Jane accounts)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"tests[\"Body is not empty\"] = (responseBody!==null || responseBody.length!==0);\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Look For Transfer From John to Jane In Transfers List\", function () {\r",
+							"    pm.expect(jsonData.some(item => item.accountNumber === pm.globals.get(\"johnDoeAccountNumber\"))).to.be.true;\r",
+							"    pm.expect(jsonData.some(item => item.accountNumber === pm.globals.get(\"janeDoeAccountNumber\"))).to.be.true;\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost/v1/accounts",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"v1",
+						"accounts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Perform Transfer to Account (from john.doe to jane.doe)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"tests[\"Body is not empty\"] = (responseBody!==null || responseBody.length!==0);\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Check if transfer had success\", function () {\r",
+							"    pm.expect(jsonData.fromAccount).equal(pm.globals.get(\"johnDoeAccountNumber\"));\r",
+							"    pm.expect(jsonData.toAccount).equal(pm.globals.get(\"janeDoeAccountNumber\"));\r",
+							"    pm.expect(jsonData.amount).equal(100.0);\r",
+							"    pm.expect(jsonData.status).equal(\"SUCCESS\");\r",
+							"});\r",
+							"\r",
+							"pm.globals.set(\"transferIdFromJohnToJane\", jsonData.id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"toAccount\" : {{janeDoeAccountNumber}},\r\n    \"amount\" : 100\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:80/v1/accounts/{{johnDoeAccountNumber}}/transfers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "80",
+					"path": [
+						"v1",
+						"accounts",
+						"{{johnDoeAccountNumber}}",
+						"transfers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Account By Number (jane.doe)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"tests[\"Body is not empty\"] = (responseBody!==null || responseBody.length!==0);\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Check Reponse and Balance After Transfers\", function () {\r",
+							"    pm.expect(jsonData.name).equal(\"jane.doe\");\r",
+							"    pm.expect(jsonData.accountNumber).equal(pm.globals.get(\"janeDoeAccountNumber\"));\r",
+							"    pm.expect(jsonData.accountBalance).equal(1000100.0);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:80/v1/accounts/{{janeDoeAccountNumber}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "80",
+					"path": [
+						"v1",
+						"accounts",
+						"{{janeDoeAccountNumber}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Account By Number (john.doe)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"tests[\"Body is not empty\"] = (responseBody!==null || responseBody.length!==0);\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Check Reponse and Balance After Transfers\", function () {\r",
+							"    pm.expect(jsonData.name).equal(\"john.doe\");\r",
+							"    pm.expect(jsonData.accountNumber).equal(pm.globals.get(\"johnDoeAccountNumber\"));\r",
+							"    pm.expect(jsonData.accountBalance).equal(999900.00);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:80/v1/accounts/{{johnDoeAccountNumber}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "80",
+					"path": [
+						"v1",
+						"accounts",
+						"{{johnDoeAccountNumber}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Transfers For Account (Look for John´s transfer to Jane)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"tests[\"Body is not empty\"] = (responseBody!==null || responseBody.length!==0);\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Look For Transfer From John to Jane In Transfers List\", function () {\r",
+							"    pm.expect(jsonData.some(item => item.id === pm.globals.get(\"transferIdFromJohnToJane\"))).to.be.true;\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost/v1/accounts/{{johnDoeAccountNumber}}/transfers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"v1",
+						"accounts",
+						"{{johnDoeAccountNumber}}",
+						"transfers"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

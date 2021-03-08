@@ -1,7 +1,6 @@
 package com.bortoti.accountmanagement.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -13,6 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -24,14 +24,10 @@ import java.util.UUID;
 @ApiModel
 public class AccountTransfer {
     @Id
-    @JsonIgnore
     private UUID id;
-    @ApiModelProperty(value = "fromAccount", name = "fromAccount", dataType = "Integer", example = "1")
     private Integer fromAccount;
-    @ApiModelProperty(value = "toAccount", name = "toAccount", dataType = "Integer", example = "2")
     private Integer toAccount;
-    @ApiModelProperty(value = "amount", name = "amount", dataType = "Double", example = "500.00")
-    private Double amount;
+    private BigDecimal amount;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "createdAt", name = "createdAt", hidden = true, accessMode = ApiModelProperty.AccessMode.READ_ONLY)
     private LocalDateTime createdAt;

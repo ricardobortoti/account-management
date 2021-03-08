@@ -13,6 +13,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,12 +41,12 @@ class AccountServiceTest {
                 .id(UUID.randomUUID())
                 .name("targetAccount")
                 .accountNumber(1)
-                .accountBalance(100.00)
+                .accountBalance(BigDecimal.valueOf(100.00))
                 .build();
         //when
-        accountService.withdraw(targetAccount, 50.0);
+        accountService.withdraw(targetAccount, BigDecimal.valueOf(50.0));
         //then
-        assertEquals(targetAccount.getAccountBalance(), 50.0);
+        assertEquals(targetAccount.getAccountBalance(), BigDecimal.valueOf(50.0));
     }
 
     @Test
@@ -55,12 +56,12 @@ class AccountServiceTest {
                 .id(UUID.randomUUID())
                 .name("targetAccount")
                 .accountNumber(1)
-                .accountBalance(100.00)
+                .accountBalance(BigDecimal.valueOf(100.00))
                 .build();
         //when
-        accountService.deposit(targetAccount, 100.50);
+        accountService.deposit(targetAccount, BigDecimal.valueOf(100.50));
         //then
-        assertEquals(targetAccount.getAccountBalance(), 200.50);
+        assertEquals(targetAccount.getAccountBalance(), BigDecimal.valueOf(200.50));
     }
 
     @Test
@@ -73,14 +74,14 @@ class AccountServiceTest {
                 .id(UUID.randomUUID())
                 .name("fromAccount")
                 .accountNumber(fromAccountNumber)
-                .accountBalance(100.00)
+                .accountBalance(BigDecimal.valueOf(100.00))
                 .build();
 
         Account toAccount = Account.builder()
                 .id(UUID.randomUUID())
                 .name("toAccount")
                 .accountNumber(toAccountNumber)
-                .accountBalance(100.00)
+                .accountBalance(BigDecimal.valueOf(100.0))
                 .build();
 
         UUID transferId = UUID.randomUUID();
@@ -89,7 +90,7 @@ class AccountServiceTest {
                 .id(transferId)
                 .fromAccount(fromAccountNumber)
                 .toAccount(toAccountNumber)
-                .amount(50.0)
+                .amount(BigDecimal.valueOf(50.0))
                 .createdAt(createdAt)
                 .build();
 
@@ -97,7 +98,7 @@ class AccountServiceTest {
                 .id(transferId)
                 .fromAccount(fromAccountNumber)
                 .toAccount(toAccountNumber)
-                .amount(50.0)
+                .amount(BigDecimal.valueOf(50.0))
                 .createdAt(createdAt)
                 .status(AccountTransferStatusEnum.SUCCESS)
                 .build();

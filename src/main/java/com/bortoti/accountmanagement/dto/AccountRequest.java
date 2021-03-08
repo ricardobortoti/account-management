@@ -1,6 +1,5 @@
-package com.bortoti.accountmanagement.domain;
+package com.bortoti.accountmanagement.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -9,26 +8,23 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.UUID;
 
-@Entity
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel
-public class Account {
-    @Id
-    @JsonIgnore
-    private UUID id;
+public class AccountRequest {
     @ApiModelProperty(value = "name", name = "name", dataType = "String", example = "Joao")
+    @NotNull
     private String name;
     @Column(unique=true)
     @ApiModelProperty(value = "accountNumber", name = "accountNumber", dataType = "Integer", example = "1")
+    @NotNull
     private Integer accountNumber;
     @ApiModelProperty(value = "accountBalance", name = "accountBalance", dataType = "Double", example = "250000.00")
+    @NotNull
     private BigDecimal accountBalance;
 }
