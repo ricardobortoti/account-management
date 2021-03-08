@@ -18,7 +18,6 @@ import java.math.BigDecimal;
 @Data
 public class AccountTransferRequest {
     @ApiModelProperty(value = "toAccount", name = "toAccount", dataType = "Integer", example = "2")
-    @NotNull
     @NotNull(message = "Destiny Account cannot be Null")
     private Integer toAccount;
     @ApiModelProperty(value = "amount", name = "amount", dataType = "Double", example = "500.00")
