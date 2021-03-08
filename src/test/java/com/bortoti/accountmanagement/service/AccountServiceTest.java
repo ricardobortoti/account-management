@@ -2,6 +2,7 @@ package com.bortoti.accountmanagement.service;
 
 import com.bortoti.accountmanagement.domain.Account;
 import com.bortoti.accountmanagement.domain.AccountTransfer;
+import com.bortoti.accountmanagement.domain.AccountTransferStatusEnum;
 import com.bortoti.accountmanagement.repository.AccountRepository;
 import com.bortoti.accountmanagement.repository.AccountTransferRepository;
 import org.junit.jupiter.api.Test;
@@ -98,7 +99,7 @@ class AccountServiceTest {
                 .toAccount(toAccountNumber)
                 .amount(50.0)
                 .createdAt(createdAt)
-                .success(true)
+                .status(AccountTransferStatusEnum.SUCCESS)
                 .build();
 
         //when

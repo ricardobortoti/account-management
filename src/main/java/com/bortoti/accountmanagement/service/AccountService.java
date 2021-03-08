@@ -2,10 +2,8 @@ package com.bortoti.accountmanagement.service;
 
 import com.bortoti.accountmanagement.domain.Account;
 import com.bortoti.accountmanagement.domain.AccountTransfer;
-import com.bortoti.accountmanagement.exception.AccountNotFoundException;
-import com.bortoti.accountmanagement.exception.NotEnoughBalanceException;
-import com.bortoti.accountmanagement.exception.SameAccountException;
-import com.bortoti.accountmanagement.exception.TransactionLimitExceededException;
+import com.bortoti.accountmanagement.domain.AccountTransferStatusEnum;
+import com.bortoti.accountmanagement.exception.*;
 import com.bortoti.accountmanagement.repository.AccountRepository;
 import com.bortoti.accountmanagement.repository.AccountTransferRepository;
 import com.bortoti.accountmanagement.view.AccountTransferView;
@@ -33,6 +31,10 @@ public class AccountService {
     }
 
     public Account create(Account account) {
+        if (accountRepository.findByAccountNumber(account.getAccountNumber()).isPresent()) {
+            throw new AccountNumberAlreadyExistsException();
+        }
+
         account.setId(UUID.randomUUID());
         return save(account);
     }
@@ -42,7 +44,7 @@ public class AccountService {
     }
 
     public Account findByAccountNumber(Integer accountNumber) {
-        return  accountRepository.findByAccountNumber(accountNumber).orElseThrow(AccountNotFoundException.notFound(accountNumber));
+        return  accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new AccountNotFoundException("Account Not Found"));
     }
 
     void withdraw(Account account, Double amount) {
@@ -71,15 +73,17 @@ public class AccountService {
         Account to = findByAccountNumber(accountTransfer.getToAccount());
         accountTransfer.setId(UUID.randomUUID());
         accountTransfer.setCreatedAt(LocalDateTime.now());
-        accountTransfer.setSuccess(true);
+        accountTransfer.setStatus(AccountTransferStatusEnum.SUCCESS);
 
         try {
             withdraw(from, accountTransfer.getAmount());
             deposit(to, accountTransfer.getAmount());
             save(from);
             save(to);
-        } catch (Exception e) {
-            accountTransfer.setSuccess(false);
+        } catch (NotEnoughBalanceException e) {
+            accountTransfer.setStatus(AccountTransferStatusEnum.NOT_ENOUGH_BALANCE);
+        } catch (TransactionLimitExceededException e) {
+            accountTransfer.setStatus(AccountTransferStatusEnum.TRANSACTION_LIMIT_EXCEEDED);
         }
 
 
