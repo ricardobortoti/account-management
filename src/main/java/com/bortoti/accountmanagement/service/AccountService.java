@@ -7,6 +7,7 @@ import com.bortoti.accountmanagement.exception.*;
 import com.bortoti.accountmanagement.repository.AccountRepository;
 import com.bortoti.accountmanagement.repository.AccountTransferRepository;
 import com.bortoti.accountmanagement.view.AccountTransferView;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class AccountService {
 
     private static final int transactionLimitValue = 1000;
@@ -30,12 +32,16 @@ public class AccountService {
     }
 
     private Account save(Account account){
+        log.info("Saving account");
         return accountRepository.save(account);
     }
 
     public Account create(Account account) {
+        log.info("Attempting to create account");
         if (accountRepository.findByAccountNumber(account.getAccountNumber()).isPresent()) {
-            throw new AccountNumberAlreadyExistsException();
+            AccountNumberAlreadyExistsException ex = new AccountNumberAlreadyExistsException();
+            log.error("Failed to create account {}", ex.getMessage());
+            throw ex;
         }
 
         account.setId(UUID.randomUUID());
@@ -43,19 +49,27 @@ public class AccountService {
     }
 
     public List<Account> findAll() {
+        log.info("Getting All Accounts");
         return accountRepository.findAll();
     }
 
     public Account findByAccountNumber(Integer accountNumber) {
+        log.info("Finding account by number {}", accountNumber);
         return  accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new AccountNotFoundException("Account Not Found"));
     }
 
     public void withdraw(Account account, BigDecimal amount) {
+        log.info("Performing withdraw into {}, {}", account.getAccountNumber(), amount);
+
         if (account.getAccountBalance().compareTo(amount) < 0) {
-            throw new NotEnoughBalanceException();
+            NotEnoughBalanceException ex = new NotEnoughBalanceException();
+            log.error("Failed to do withdraw {}", ex.getMessage());
+            throw ex;
         }
 
         if (amount.compareTo(BigDecimal.valueOf(transactionLimitValue)) > 0) {
+            TransactionLimitExceededException ex = new TransactionLimitExceededException();
+            log.error("Failed to do withdraw {}", ex.getMessage());
             throw new TransactionLimitExceededException();
         }
 
@@ -63,11 +77,14 @@ public class AccountService {
     }
 
     public void deposit(Account account, BigDecimal amount) {
+        log.info("Performing deposit into {}, {}", account.getAccountNumber(), amount);
         account.setAccountBalance(account.getAccountBalance().add(amount));
     }
 
     @Transactional
     public AccountTransfer transfer(AccountTransfer accountTransfer) {
+        log.info("Performing transfer from {} to {}, {}", accountTransfer.getFromAccount(), accountTransfer.getToAccount(), accountTransfer.getAmount());
+
         if (accountTransfer.getFromAccount().equals(accountTransfer.getToAccount())) {
             throw new SameAccountException();
         }

@@ -28,7 +28,7 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
     private ApiInfo metaData() {
         return new ApiInfoBuilder()
                 .title("Account Management System")
-                .description("\"Account Management System\"")
+                .description("\"Exemplo simples de sistema de gerenciamento de contas com deploy num cluster ECS\"")
                 .version("1.0.0")
                 .license("Apache License Version 2.0")
                 .licenseUrl("https://www.apache.org/licenses/LICENSE-2.0\"")
