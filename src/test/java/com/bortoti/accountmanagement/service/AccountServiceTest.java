@@ -3,29 +3,29 @@ package com.bortoti.accountmanagement.service;
 import com.bortoti.accountmanagement.domain.Account;
 import com.bortoti.accountmanagement.domain.AccountTransfer;
 import com.bortoti.accountmanagement.domain.AccountTransferStatusEnum;
+import com.bortoti.accountmanagement.exception.AccountNumberAlreadyExistsException;
 import com.bortoti.accountmanagement.exception.NotEnoughBalanceException;
+import com.bortoti.accountmanagement.exception.SameAccountException;
 import com.bortoti.accountmanagement.exception.TransactionLimitExceededException;
 import com.bortoti.accountmanagement.repository.AccountRepository;
 import com.bortoti.accountmanagement.repository.AccountTransferRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class AccountServiceTest {
+public class AccountServiceTest {
 
 
     @InjectMocks
@@ -37,8 +37,11 @@ class AccountServiceTest {
     @Mock
     AccountTransferRepository accountTransferRepositoryMock;
 
+    @Captor
+    ArgumentCaptor<Account> accountArgumentCaptor;
+
     @Test
-    void withdraw_MustReturnOk() {
+    public void withdraw_MustReturnOk() {
         //case
         Account targetAccount = Account.builder()
                 .id(UUID.randomUUID())
@@ -53,7 +56,7 @@ class AccountServiceTest {
     }
 
     @Test
-    void withdraw_MustThrowNotEnoughBalanceException() {
+    public void withdraw_MustThrowNotEnoughBalanceException() {
         //case
         Account targetAccount = Account.builder()
                 .id(UUID.randomUUID())
@@ -66,7 +69,7 @@ class AccountServiceTest {
     }
 
     @Test
-    void withdraw_MustThrowTransactionLimitExceededException() {
+    public void withdraw_MustThrowTransactionLimitExceededException() {
         //case
         Account targetAccount = Account.builder()
                 .id(UUID.randomUUID())
@@ -79,7 +82,7 @@ class AccountServiceTest {
     }
 
     @Test
-    void deposit_MustReturnOk() {
+    public void deposit_MustReturnOk() {
         //case
         Account targetAccount = Account.builder()
                 .id(UUID.randomUUID())
@@ -94,7 +97,7 @@ class AccountServiceTest {
     }
 
     @Test
-    void transfer_MustReturnOk() {
+    public void transfer_MustReturnOk() {
         //case
         Integer fromAccountNumber = 1;
         Integer toAccountNumber = 2;
@@ -150,7 +153,7 @@ class AccountServiceTest {
     }
 
     @Test
-    void transfer_MustReturnTRANSACTION_LIMIT_EXCEEDED() {
+    public void transfer_MustReturnTRANSACTION_LIMIT_EXCEEDED() {
         //case
         Integer fromAccountNumber = 1;
         Integer toAccountNumber = 2;
@@ -204,7 +207,47 @@ class AccountServiceTest {
     }
 
     @Test
-    void transfer_MustReturnNOT_ENOUGH_BALANCE() {
+    public void transfer_MustReturnThrowSameAccountException() {
+        //case
+        Integer fromAccountNumber = 1;
+        Integer toAccountNumber = 2;
+
+        Account fromAccount = Account.builder()
+                .id(UUID.randomUUID())
+                .name("fromAccount")
+                .accountNumber(fromAccountNumber)
+                .accountBalance(BigDecimal.valueOf(100))
+                .build();
+
+        Account toAccount = Account.builder()
+                .id(UUID.randomUUID())
+                .name("toAccount")
+                .accountNumber(toAccountNumber)
+                .accountBalance(BigDecimal.valueOf(100))
+                .build();
+
+        UUID transferId = UUID.randomUUID();
+        LocalDateTime createdAt = LocalDateTime.now();
+        AccountTransfer transfer = AccountTransfer.builder()
+                .id(transferId)
+                .fromAccount(fromAccountNumber)
+                .toAccount(fromAccountNumber)
+                .amount(BigDecimal.valueOf(900.0))
+                .createdAt(createdAt)
+                .build();
+
+        //then
+        try (MockedStatic<UUID> mockedUUID = Mockito.mockStatic(UUID.class)) {
+            mockedUUID.when(UUID::randomUUID).thenReturn(transferId);
+            try (MockedStatic<LocalDateTime> mockedLocalDateTime = Mockito.mockStatic(LocalDateTime.class)) {
+                mockedLocalDateTime.when(LocalDateTime::now).thenReturn(createdAt);
+                assertThrows(SameAccountException.class, ()-> accountService.transfer(transfer));
+            }
+        }
+    }
+
+    @Test
+    public void transfer_MustReturnNOT_ENOUGH_BALANCE() {
         //case
         Integer fromAccountNumber = 1;
         Integer toAccountNumber = 2;
@@ -255,5 +298,60 @@ class AccountServiceTest {
                 accountService.transfer(transfer);
             }
         }
+    }
+
+    @Test
+    public void create_MustReturnOk() {
+        Account account = Account.builder()
+                .name("account")
+                .accountNumber(1)
+                .accountBalance(BigDecimal.valueOf(100))
+                .build();
+
+        when(accountRepositoryMock.findByAccountNumber(account.getAccountNumber())).thenReturn(Optional.empty());
+        when(accountRepositoryMock.save(any(Account.class))).thenReturn(account);
+
+        accountService.create(account);
+
+        verify(accountRepositoryMock, times(1)).save(accountArgumentCaptor.capture());
+        Account value = accountArgumentCaptor.getValue();
+        assertEquals(account.getName(), value.getName());
+        assertEquals(account.getAccountNumber(), value.getAccountNumber());
+        assertEquals(account.getAccountBalance(), value.getAccountBalance());
+        assertNotNull(value.getId());
+    }
+
+    @Test
+    public void create_MustThrowAccountNumberAlreadyExistsException() {
+        Account account = Account.builder()
+                .name("account")
+                .accountNumber(1)
+                .accountBalance(BigDecimal.valueOf(100))
+                .build();
+
+        when(accountRepositoryMock.findByAccountNumber(account.getAccountNumber())).thenReturn(Optional.of(account));
+
+        assertThrows(AccountNumberAlreadyExistsException.class, () -> accountService.create(account));
+    }
+
+    @Test
+    public void findAll_MustReturnOk() {
+        Account account = Account.builder()
+                .name("account")
+                .accountNumber(1)
+                .accountBalance(BigDecimal.valueOf(100))
+                .build();
+
+        when(accountRepositoryMock.findAll()).thenReturn(List.of(account));
+
+        List<Account> all = accountService.findAll();
+
+        assertEquals(account, all.get(0));
+        verify(accountRepositoryMock, times(1)).findAll();
+    }
+
+    @Test
+    void findByAccountNumber_MustReturnOk() {
+
     }
 }

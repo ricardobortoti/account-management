@@ -48,7 +48,7 @@ public class AccountService {
         return  accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new AccountNotFoundException("Account Not Found"));
     }
 
-    void withdraw(Account account, BigDecimal amount) {
+    public void withdraw(Account account, BigDecimal amount) {
         if (account.getAccountBalance().compareTo(amount) < 0) {
             throw new NotEnoughBalanceException();
         }
@@ -60,7 +60,7 @@ public class AccountService {
         account.setAccountBalance(account.getAccountBalance().subtract(amount));
     }
 
-    void deposit(Account account, BigDecimal amount) {
+    public void deposit(Account account, BigDecimal amount) {
         account.setAccountBalance(account.getAccountBalance().add(amount));
     }
 
