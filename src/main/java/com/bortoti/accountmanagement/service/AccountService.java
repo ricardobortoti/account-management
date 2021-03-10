@@ -89,6 +89,9 @@ public class AccountService {
             throw new SameAccountException();
         }
 
+
+        log.info("Performing transfer from {} to {}, {}", accountTransfer.getFromAccount(), accountTransfer.getToAccount(), accountTransfer.getAmount());
+
         Account from = findByAccountNumber(accountTransfer.getFromAccount());
         Account to = findByAccountNumber(accountTransfer.getToAccount());
         accountTransfer.setId(UUID.randomUUID());
